@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Furniro Interior Shop</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --brand: #b88e2f;
+        --ink: #2f2f2f;
+        --muted: #666666;
+        --cream: #fff3e3;
+      }
+
+      * {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        color: var(--ink);
+        background: #fffaf4;
+      }
+
+      .hero-bg {
+        background-image:
+          linear-gradient(90deg, rgba(255, 250, 244, 0.1), rgba(255, 250, 244, 0.88)),
+          url("https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1800&q=85");
+        background-size: cover;
+        background-position: center;
+      }
+
+      .range-card img,
+      .product-card img,
+      .room-slide img {
+        transition: transform 0.45s ease;
+      }
+
+      .range-card:hover img,
+      .product-card:hover img,
+      .room-slide:hover img {
+        transform: scale(1.05);
+      }
+
+      .toast {
+        transform: translateY(120%);
+        opacity: 0;
+        transition: all 0.25s ease;
+      }
+
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .cart-panel {
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+      }
+
+      .cart-panel.open {
+        transform: translateX(0);
+      }
+
+      .modal-shell {
+        transform: translateY(18px) scale(0.98);
+        opacity: 0;
+        transition: all 0.22s ease;
+      }
+
+      .modal-shell.open {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <header class="sticky top-0 z-40 border-b border-[#eadfce] bg-white/95 backdrop-blur">
+      <nav class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <a href="#home" class="flex items-center gap-3" aria-label="Furniro home">
+          <span class="grid h-10 w-10 place-items-center rounded bg-[#b88e2f] text-lg font-bold text-white">F</span>
+          <span class="text-2xl font-bold tracking-tight">Furniro</span>
+        </a>
+
+        <div class="hidden items-center gap-10 text-sm font-medium lg:flex">
+          <a class="hover:text-[#b88e2f]" href="#home">Home</a>
+          <a class="hover:text-[#b88e2f]" href="#shop">Shop</a>
+          <a class="hover:text-[#b88e2f]" href="#rooms">Rooms</a>
+          <a class="hover:text-[#b88e2f]" href="#contact">Contact</a>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="searchToggle" class="grid h-10 w-10 place-items-center rounded hover:bg-[#fff3e3]" aria-label="Open search">
+            <i data-lucide="search" class="h-5 w-5"></i>
+          </button>
+          <button id="wishlistToggle" class="relative grid h-10 w-10 place-items-center rounded hover:bg-[#fff3e3]" aria-label="Show wishlist">
+            <i data-lucide="heart" class="h-5 w-5"></i>
+            <span id="wishCount" class="absolute -right-1 -top-1 hidden min-w-5 rounded-full bg-[#b88e2f] px-1 text-xs font-semibold text-white">0</span>
+          </button>
+          <button id="cartToggle" class="relative grid h-10 w-10 place-items-center rounded hover:bg-[#fff3e3]" aria-label="Open cart">
+            <i data-lucide="shopping-cart" class="h-5 w-5"></i>
+            <span id="cartCount" class="absolute -right-1 -top-1 hidden min-w-5 rounded-full bg-[#b88e2f] px-1 text-xs font-semibold text-white">0</span>
+          </button>
+          <button id="menuToggle" class="grid h-10 w-10 place-items-center rounded hover:bg-[#fff3e3] lg:hidden" aria-label="Open menu">
+            <i data-lucide="menu" class="h-5 w-5"></i>
+          </button>
+        </div>
+      </nav>
+
+      <div id="mobileMenu" class="hidden border-t border-[#eadfce] bg-white px-4 py-4 lg:hidden">
+        <div class="mx-auto grid max-w-7xl gap-3 text-sm font-medium">
+          <a class="rounded px-2 py-2 hover:bg-[#fff3e3]" href="#home">Home</a>
+          <a class="rounded px-2 py-2 hover:bg-[#fff3e3]" href="#shop">Shop</a>
+          <a class="rounded px-2 py-2 hover:bg-[#fff3e3]" href="#rooms">Rooms</a>
+          <a class="rounded px-2 py-2 hover:bg-[#fff3e3]" href="#contact">Contact</a>
+        </div>
+      </div>
+
+      <div id="searchBar" class="hidden border-t border-[#eadfce] bg-white px-4 py-4">
+        <div class="mx-auto flex max-w-3xl items-center gap-3 rounded border border-[#d8c6ab] px-4 py-3">
+          <i data-lucide="search" class="h-5 w-5 text-[#8b7b66]"></i>
+          <input id="searchInput" class="w-full bg-transparent text-sm outline-none" type="search" placeholder="Search sofas, chairs, lamps..." />
+          <button id="clearSearch" class="text-sm font-semibold text-[#b88e2f]">Clear</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="home" class="hero-bg min-h-[620px]">
+        <div class="mx-auto flex min-h-[620px] max-w-7xl items-center px-4 py-12 sm:px-6 lg:justify-end lg:px-8">
+          <div class="w-full max-w-xl bg-[#fff3e3]/95 p-8 shadow-xl sm:p-10">
+            <p class="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#5f513b]">New arrival</p>
+            <h1 class="text-4xl font-bold leading-tight text-[#b88e2f] sm:text-5xl">Discover Our New Collection</h1>
+            <p class="mt-4 text-base leading-7 text-[#4f4638]">
+              Thoughtful furniture, warm textures, and practical pieces made for calm modern homes.
+            </p>
+            <a href="#shop" class="mt-8 inline-flex items-center justify-center gap-2 bg-[#b88e2f] px-8 py-4 text-sm font-bold uppercase text-white hover:bg-[#9c7728]">
+              Buy now
+              <i data-lucide="arrow-right" class="h-4 w-4"></i>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div class="text-center">
+          <h2 class="text-3xl font-bold">Browse The Range</h2>
+          <p class="mt-2 text-[#666]">Choose a room style and jump straight into matching products.</p>
+        </div>
+        <div class="mt-10 grid gap-6 md:grid-cols-3">
+          <button class="range-card text-left" data-category="Dining">
+            <span class="block overflow-hidden rounded">
+              <img class="h-80 w-full object-cover" src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=85" alt="Dining room" />
+            </span>
+            <span class="mt-5 block text-center text-xl font-semibold">Dining</span>
+          </button>
+          <button class="range-card text-left" data-category="Living">
+            <span class="block overflow-hidden rounded">
+              <img class="h-80 w-full object-cover" src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=85" alt="Living room" />
+            </span>
+            <span class="mt-5 block text-center text-xl font-semibold">Living</span>
+          </button>
+          <button class="range-card text-left" data-category="Bedroom">
+            <span class="block overflow-hidden rounded">
+              <img class="h-80 w-full object-cover" src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=900&q=85" alt="Bedroom" />
+            </span>
+            <span class="mt-5 block text-center text-xl font-semibold">Bedroom</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="shop" class="bg-white py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 class="text-3xl font-bold">Our Products</h2>
+              <p id="resultSummary" class="mt-2 text-sm text-[#666]">Fresh furniture for every corner.</p>
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <select id="categoryFilter" class="rounded border border-[#d8c6ab] bg-white px-4 py-3 text-sm outline-none">
+                <option value="All">All rooms</option>
+                <option value="Living">Living</option>
+                <option value="Dining">Dining</option>
+                <option value="Bedroom">Bedroom</option>
+                <option value="Decor">Decor</option>
+              </select>
+              <select id="sortFilter" class="rounded border border-[#d8c6ab] bg-white px-4 py-3 text-sm outline-none">
+                <option value="featured">Featured</option>
+                <option value="low">Price: low to high</option>
+                <option value="high">Price: high to low</option>
+                <option value="sale">Sale first</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="productsGrid" class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"></div>
+
+          <div class="mt-10 text-center">
+            <button id="showMore" class="border border-[#b88e2f] px-12 py-3 text-sm font-semibold text-[#b88e2f] hover:bg-[#b88e2f] hover:text-white">Show more</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="rooms" class="bg-[#fcf8f3] py-16">
+        <div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:px-8">
+          <div>
+            <h2 class="text-3xl font-bold leading-tight sm:text-4xl">50+ Beautiful rooms inspiration</h2>
+            <p class="mt-4 leading-7 text-[#666]">Explore ready-made room compositions and add the matching products to your home plan.</p>
+            <button id="exploreRooms" class="mt-8 inline-flex items-center gap-2 bg-[#b88e2f] px-8 py-4 text-sm font-semibold text-white hover:bg-[#9c7728]">
+              Explore more
+              <i data-lucide="arrow-right" class="h-4 w-4"></i>
+            </button>
+          </div>
+          <div class="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
+            <article class="room-slide relative overflow-hidden rounded bg-white shadow-sm">
+              <img id="roomImage" class="h-[470px] w-full object-cover" src="" alt="" />
+              <div class="absolute bottom-6 left-6 bg-white/92 p-5">
+                <p id="roomMeta" class="text-sm text-[#666]"></p>
+                <h3 id="roomTitle" class="mt-1 text-2xl font-semibold"></h3>
+              </div>
+            </article>
+            <div class="flex flex-col gap-4">
+              <div class="overflow-hidden rounded">
+                <img class="h-[220px] w-full object-cover" src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=800&q=85" alt="Cozy interior" />
+              </div>
+              <div class="flex items-center gap-3">
+                <button id="prevRoom" class="grid h-11 w-11 place-items-center rounded-full bg-white shadow hover:text-[#b88e2f]" aria-label="Previous room">
+                  <i data-lucide="chevron-left" class="h-5 w-5"></i>
+                </button>
+                <button id="nextRoom" class="grid h-11 w-11 place-items-center rounded-full bg-white shadow hover:text-[#b88e2f]" aria-label="Next room">
+                  <i data-lucide="chevron-right" class="h-5 w-5"></i>
+                </button>
+                <div id="roomDots" class="ml-2 flex gap-2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div class="grid gap-6 md:grid-cols-4">
+          <div class="flex items-center gap-4">
+            <i data-lucide="trophy" class="h-9 w-9 text-[#b88e2f]"></i>
+            <div><h3 class="font-semibold">High Quality</h3><p class="text-sm text-[#666]">Crafted from top materials</p></div>
+          </div>
+          <div class="flex items-center gap-4">
+            <i data-lucide="badge-check" class="h-9 w-9 text-[#b88e2f]"></i>
+            <div><h3 class="font-semibold">Warranty</h3><p class="text-sm text-[#666]">Over 2 years protection</p></div>
+          </div>
+          <div class="flex items-center gap-4">
+            <i data-lucide="truck" class="h-9 w-9 text-[#b88e2f]"></i>
+            <div><h3 class="font-semibold">Free Shipping</h3><p class="text-sm text-[#666]">Order over $150</p></div>
+          </div>
+          <div class="flex items-center gap-4">
+            <i data-lucide="headphones" class="h-9 w-9 text-[#b88e2f]"></i>
+            <div><h3 class="font-semibold">24/7 Support</h3><p class="text-sm text-[#666]">Dedicated support</p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer id="contact" class="border-t border-[#eadfce] bg-white">
+      <div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.1fr_0.7fr_1fr] lg:px-8">
+        <div>
+          <h2 class="text-2xl font-bold">Furniro.</h2>
+          <p class="mt-8 max-w-sm text-sm leading-7 text-[#666]">400 University Drive Suite 200 Coral Gables, FL 33134 USA</p>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-[#9f9f9f]">Links</h3>
+          <div class="mt-6 grid gap-4 text-sm font-medium">
+            <a href="#home">Home</a>
+            <a href="#shop">Shop</a>
+            <a href="#rooms">Rooms</a>
+            <a href="#contact">Contact</a>
+          </div>
+        </div>
+        <form id="newsletterForm">
+          <h3 class="text-sm font-semibold text-[#9f9f9f]">Newsletter</h3>
+          <div class="mt-6 flex gap-3">
+            <input required type="email" class="min-w-0 flex-1 border-b border-black py-2 text-sm outline-none" placeholder="Enter your email address" />
+            <button class="border-b border-black py-2 text-sm font-semibold uppercase">Subscribe</button>
+          </div>
+        </form>
+      </div>
+      <div class="mx-auto max-w-7xl border-t border-[#eadfce] px-4 py-8 text-sm sm:px-6 lg:px-8">2026 Furniro. All rights reserved</div>
+    </footer>
+
+    <div id="overlay" class="fixed inset-0 z-50 hidden bg-black/45"></div>
+
+    <aside id="cartPanel" class="cart-panel fixed right-0 top-0 z-[60] flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
+      <div class="flex items-center justify-between border-b border-[#eadfce] p-5">
+        <h2 class="text-xl font-semibold">Shopping Cart</h2>
+        <button id="closeCart" class="grid h-10 w-10 place-items-center rounded hover:bg-[#fff3e3]" aria-label="Close cart">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+      </div>
+      <div id="cartItems" class="flex-1 overflow-auto p-5"></div>
+      <div class="border-t border-[#eadfce] p-5">
+        <div class="mb-4 flex items-center justify-between text-lg font-semibold">
+          <span>Subtotal</span>
+          <span id="cartTotal">$0</span>
+        </div>
+        <button id="checkoutBtn" class="w-full bg-[#b88e2f] py-4 text-sm font-bold uppercase text-white hover:bg-[#9c7728]">Checkout</button>
+      </div>
+    </aside>
+
+    <div id="productModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/50" data-close-modal></div>
+      <article class="modal-shell relative grid max-h-[92vh] w-full max-w-4xl overflow-auto bg-white shadow-2xl md:grid-cols-2">
+        <button class="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded bg-white/90 hover:bg-[#fff3e3]" data-close-modal aria-label="Close product">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+        <img id="modalImage" class="h-80 w-full object-cover md:h-full" src="" alt="" />
+        <div class="p-7">
+          <p id="modalCategory" class="text-sm font-semibold uppercase tracking-[0.15em] text-[#b88e2f]"></p>
+          <h2 id="modalTitle" class="mt-3 text-3xl font-bold"></h2>
+          <p id="modalPrice" class="mt-3 text-xl font-semibold"></p>
+          <p id="modalDescription" class="mt-5 leading-7 text-[#666]"></p>
+          <div class="mt-6">
+            <p class="mb-2 text-sm font-semibold">Quantity</p>
+            <div class="inline-flex items-center border border-[#d8c6ab]">
+              <button id="qtyMinus" class="grid h-11 w-11 place-items-center hover:bg-[#fff3e3]">-</button>
+              <span id="modalQty" class="grid h-11 w-12 place-items-center text-sm font-semibold">1</span>
+              <button id="qtyPlus" class="grid h-11 w-11 place-items-center hover:bg-[#fff3e3]">+</button>
+            </div>
+          </div>
+          <button id="modalAddCart" class="mt-7 w-full bg-[#2f2f2f] py-4 text-sm font-bold uppercase text-white hover:bg-[#b88e2f]">Add to cart</button>
+        </div>
+      </article>
+    </div>
+
+    <div id="toast" class="toast fixed bottom-5 left-1/2 z-[80] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded bg-[#2f2f2f] px-5 py-4 text-center text-sm font-medium text-white shadow-xl"></div>
+
+    <script>
+      const products = [
+        {
+          id: 1,
+          name: "Syltherine",
+          category: "Living",
+          subtitle: "Stylish cafe chair",
+          price: 250,
+          oldPrice: 350,
+          badge: "-30%",
+          image: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=900&q=85",
+          description: "A compact chair with a sculptural back, soft upholstery, and sturdy wooden legs for daily comfort."
+        },
+        {
+          id: 2,
+          name: "Leviosa",
+          category: "Dining",
+          subtitle: "Minimal dining chair",
+          price: 180,
+          oldPrice: null,
+          badge: "New",
+          image: "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&w=900&q=85",
+          description: "Lightweight dining chair designed for long dinners, easy cleaning, and simple modern rooms."
+        },
+        {
+          id: 3,
+          name: "Lolito",
+          category: "Living",
+          subtitle: "Luxury big sofa",
+          price: 700,
+          oldPrice: 950,
+          badge: "-25%",
+          image: "https://images.unsplash.com/photo-1550254478-ead40cc54513?auto=format&fit=crop&w=900&q=85",
+          description: "Deep cushions and a generous frame make this sofa a relaxed center for the living room."
+        },
+        {
+          id: 4,
+          name: "Respira",
+          category: "Decor",
+          subtitle: "Outdoor bar table",
+          price: 120,
+          oldPrice: null,
+          badge: "New",
+          image: "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=900&q=85",
+          description: "A flexible accent table with a clean silhouette for balconies, kitchens, or reading corners."
+        },
+        {
+          id: 5,
+          name: "Grifo",
+          category: "Decor",
+          subtitle: "Night lamp",
+          price: 95,
+          oldPrice: 130,
+          badge: "-15%",
+          image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=85",
+          description: "Warm diffused light in a compact lamp that fits nightstands, desks, and shelves."
+        },
+        {
+          id: 6,
+          name: "Muggo",
+          category: "Dining",
+          subtitle: "Small mug",
+          price: 35,
+          oldPrice: null,
+          badge: "New",
+          image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=900&q=85",
+          description: "A ceramic mug with a tactile finish, made for everyday coffee and calm morning rituals."
+        },
+        {
+          id: 7,
+          name: "Pingky",
+          category: "Bedroom",
+          subtitle: "Cute bed set",
+          price: 500,
+          oldPrice: 640,
+          badge: "-20%",
+          image: "https://images.unsplash.com/photo-1615874694520-474822394e73?auto=format&fit=crop&w=900&q=85",
+          description: "Soft layered bedding that brings texture, warmth, and hotel-level comfort into the bedroom."
+        },
+        {
+          id: 8,
+          name: "Potty",
+          category: "Decor",
+          subtitle: "Minimal flower pot",
+          price: 55,
+          oldPrice: null,
+          badge: "New",
+          image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=900&q=85",
+          description: "A simple ceramic planter that gives greenery a refined, understated place to live."
+        }
+      ];
+
+      const rooms = [
+        {
+          title: "Inner Peace",
+          meta: "01 - Bed Room",
+          image: "https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?auto=format&fit=crop&w=1000&q=85"
+        },
+        {
+          title: "Soft Living",
+          meta: "02 - Living Room",
+          image: "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1000&q=85"
+        },
+        {
+          title: "Quiet Dinner",
+          meta: "03 - Dining Room",
+          image: "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1000&q=85"
+        }
+      ];
+
+      const state = {
+        visible: 4,
+        search: "",
+        category: "All",
+        sort: "featured",
+        cart: JSON.parse(localStorage.getItem("furniroCart") || "[]"),
+        wishlist: JSON.parse(localStorage.getItem("furniroWishlist") || "[]"),
+        roomIndex: 0,
+        modalProduct: null,
+        modalQty: 1
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+      const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+      const money = (value) => `$${value.toLocaleString()}`;
+
+      function saveState() {
+        localStorage.setItem("furniroCart", JSON.stringify(state.cart));
+        localStorage.setItem("furniroWishlist", JSON.stringify(state.wishlist));
+      }
+
+      function toast(message) {
+        const el = $("#toast");
+        el.textContent = message;
+        el.classList.add("show");
+        clearTimeout(toast.timer);
+        toast.timer = setTimeout(() => el.classList.remove("show"), 2200);
+      }
+
+      function filteredProducts() {
+        let list = products.filter((product) => {
+          const matchesCategory = state.category === "All" || product.category === state.category;
+          const term = state.search.trim().toLowerCase();
+          const matchesSearch = !term || `${product.name} ${product.subtitle} ${product.category}`.toLowerCase().includes(term);
+          return matchesCategory && matchesSearch;
+        });
+
+        if (state.sort === "low") list = list.sort((a, b) => a.price - b.price);
+        if (state.sort === "high") list = list.sort((a, b) => b.price - a.price);
+        if (state.sort === "sale") list = list.sort((a, b) => Number(Boolean(b.oldPrice)) - Number(Boolean(a.oldPrice)));
+        return list;
+      }
+
+      function renderProducts() {
+        const list = filteredProducts();
+        const shown = list.slice(0, state.visible);
+        $("#productsGrid").innerHTML = shown.map((product) => {
+          const wished = state.wishlist.includes(product.id);
+          return `
+            <article class="product-card group overflow-hidden rounded bg-[#f4f5f7]">
+              <div class="relative overflow-hidden bg-[#eee]">
+                <img class="h-72 w-full object-cover" src="${product.image}" alt="${product.name}" />
+                <span class="absolute right-4 top-4 grid h-12 w-12 place-items-center rounded-full ${product.badge.includes("-") ? "bg-[#e97171]" : "bg-[#2ec1ac]"} text-sm font-semibold text-white">${product.badge}</span>
+                <div class="absolute inset-0 flex translate-y-4 items-center justify-center gap-2 bg-black/45 opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100">
+                  <button class="quick-view bg-white px-5 py-3 text-sm font-semibold text-[#b88e2f]" data-id="${product.id}">View</button>
+                  <button class="add-cart bg-[#b88e2f] px-5 py-3 text-sm font-semibold text-white" data-id="${product.id}">Cart</button>
+                </div>
+              </div>
+              <div class="p-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 class="text-xl font-semibold">${product.name}</h3>
+                    <p class="mt-1 text-sm text-[#898989]">${product.subtitle}</p>
+                  </div>
+                  <button class="toggle-wish grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white hover:text-[#b88e2f]" data-id="${product.id}" aria-label="Toggle wishlist">
+                    <i data-lucide="heart" class="h-5 w-5 ${wished ? "fill-[#b88e2f] text-[#b88e2f]" : ""}"></i>
+                  </button>
+                </div>
+                <div class="mt-3 flex items-center gap-3">
+                  <span class="font-semibold">${money(product.price)}</span>
+                  ${product.oldPrice ? `<span class="text-sm text-[#b0b0b0] line-through">${money(product.oldPrice)}</span>` : ""}
+                </div>
+              </div>
+            </article>
+          `;
+        }).join("");
+
+        $("#resultSummary").textContent = `${list.length} product${list.length === 1 ? "" : "s"} found`;
+        $("#showMore").classList.toggle("hidden", state.visible >= list.length);
+        lucide.createIcons();
+      }
+
+      function updateCounters() {
+        const cartQty = state.cart.reduce((sum, item) => sum + item.qty, 0);
+        $("#cartCount").textContent = cartQty;
+        $("#cartCount").classList.toggle("hidden", cartQty === 0);
+        $("#wishCount").textContent = state.wishlist.length;
+        $("#wishCount").classList.toggle("hidden", state.wishlist.length === 0);
+      }
+
+      function renderCart() {
+        if (!state.cart.length) {
+          $("#cartItems").innerHTML = `<div class="grid h-full place-items-center text-center text-[#666]">Your cart is empty.</div>`;
+        } else {
+          $("#cartItems").innerHTML = state.cart.map((item) => {
+            const product = products.find((entry) => entry.id === item.id);
+            return `
+              <div class="mb-5 flex gap-4">
+                <img class="h-20 w-20 rounded object-cover" src="${product.image}" alt="${product.name}" />
+                <div class="min-w-0 flex-1">
+                  <h3 class="font-semibold">${product.name}</h3>
+                  <p class="text-sm text-[#666]">${item.qty} x ${money(product.price)}</p>
+                  <div class="mt-2 inline-flex border border-[#d8c6ab]">
+                    <button class="cart-dec grid h-8 w-8 place-items-center" data-id="${product.id}">-</button>
+                    <span class="grid h-8 w-9 place-items-center text-sm">${item.qty}</span>
+                    <button class="cart-inc grid h-8 w-8 place-items-center" data-id="${product.id}">+</button>
+                  </div>
+                </div>
+                <button class="cart-remove grid h-9 w-9 place-items-center rounded hover:bg-[#fff3e3]" data-id="${product.id}" aria-label="Remove item">
+                  <i data-lucide="trash-2" class="h-4 w-4"></i>
+                </button>
+              </div>
+            `;
+          }).join("");
+        }
+
+        const total = state.cart.reduce((sum, item) => {
+          const product = products.find((entry) => entry.id === item.id);
+          return sum + product.price * item.qty;
+        }, 0);
+        $("#cartTotal").textContent = money(total);
+        updateCounters();
+        saveState();
+        lucide.createIcons();
+      }
+
+      function addToCart(id, qty = 1) {
+        const existing = state.cart.find((item) => item.id === id);
+        if (existing) existing.qty += qty;
+        else state.cart.push({ id, qty });
+        renderCart();
+        toast("Product added to cart");
+      }
+
+      function openCart() {
+        $("#overlay").classList.remove("hidden");
+        $("#cartPanel").classList.add("open");
+      }
+
+      function closeCart() {
+        $("#overlay").classList.add("hidden");
+        $("#cartPanel").classList.remove("open");
+      }
+
+      function openModal(product) {
+        state.modalProduct = product;
+        state.modalQty = 1;
+        $("#modalImage").src = product.image;
+        $("#modalImage").alt = product.name;
+        $("#modalCategory").textContent = product.category;
+        $("#modalTitle").textContent = product.name;
+        $("#modalPrice").textContent = money(product.price);
+        $("#modalDescription").textContent = product.description;
+        $("#modalQty").textContent = state.modalQty;
+        $("#productModal").classList.remove("hidden");
+        $("#productModal").classList.add("flex");
+        requestAnimationFrame(() => $(".modal-shell").classList.add("open"));
+      }
+
+      function closeModal() {
+        $(".modal-shell").classList.remove("open");
+        setTimeout(() => {
+          $("#productModal").classList.add("hidden");
+          $("#productModal").classList.remove("flex");
+        }, 180);
+      }
+
+      function renderRoom() {
+        const room = rooms[state.roomIndex];
+        $("#roomImage").src = room.image;
+        $("#roomImage").alt = room.title;
+        $("#roomMeta").textContent = room.meta;
+        $("#roomTitle").textContent = room.title;
+        $("#roomDots").innerHTML = rooms.map((_, index) => `
+          <button class="room-dot h-3 rounded-full transition-all ${index === state.roomIndex ? "w-8 bg-[#b88e2f]" : "w-3 bg-[#d8d8d8]"}" data-index="${index}" aria-label="Show room ${index + 1}"></button>
+        `).join("");
+      }
+
+      document.addEventListener("click", (event) => {
+        const addButton = event.target.closest(".add-cart");
+        const quickButton = event.target.closest(".quick-view");
+        const wishButton = event.target.closest(".toggle-wish");
+        const rangeButton = event.target.closest(".range-card");
+        const roomDot = event.target.closest(".room-dot");
+        const cartInc = event.target.closest(".cart-inc");
+        const cartDec = event.target.closest(".cart-dec");
+        const cartRemove = event.target.closest(".cart-remove");
+
+        if (addButton) addToCart(Number(addButton.dataset.id));
+        if (quickButton) openModal(products.find((product) => product.id === Number(quickButton.dataset.id)));
+        if (wishButton) {
+          const id = Number(wishButton.dataset.id);
+          state.wishlist = state.wishlist.includes(id) ? state.wishlist.filter((item) => item !== id) : [...state.wishlist, id];
+          saveState();
+          updateCounters();
+          renderProducts();
+          toast(state.wishlist.includes(id) ? "Added to wishlist" : "Removed from wishlist");
+        }
+        if (rangeButton) {
+          state.category = rangeButton.dataset.category;
+          state.visible = 4;
+          $("#categoryFilter").value = state.category;
+          renderProducts();
+          document.querySelector("#shop").scrollIntoView();
+        }
+        if (roomDot) {
+          state.roomIndex = Number(roomDot.dataset.index);
+          renderRoom();
+        }
+        if (cartInc || cartDec || cartRemove) {
+          const id = Number((cartInc || cartDec || cartRemove).dataset.id);
+          const item = state.cart.find((entry) => entry.id === id);
+          if (cartInc) item.qty += 1;
+          if (cartDec) item.qty -= 1;
+          if (cartRemove || item.qty <= 0) state.cart = state.cart.filter((entry) => entry.id !== id);
+          renderCart();
+        }
+        if (event.target.closest("[data-close-modal]")) closeModal();
+      });
+
+      $("#menuToggle").addEventListener("click", () => $("#mobileMenu").classList.toggle("hidden"));
+      $$("#mobileMenu a").forEach((link) => link.addEventListener("click", () => $("#mobileMenu").classList.add("hidden")));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeCart();
+          if (!$("#productModal").classList.contains("hidden")) closeModal();
+        }
+      });
+      $("#searchToggle").addEventListener("click", () => {
+        $("#searchBar").classList.toggle("hidden");
+        $("#searchInput").focus();
+      });
+      $("#clearSearch").addEventListener("click", () => {
+        state.search = "";
+        $("#searchInput").value = "";
+        renderProducts();
+      });
+      $("#searchInput").addEventListener("input", (event) => {
+        state.search = event.target.value;
+        state.visible = 4;
+        renderProducts();
+      });
+      $("#categoryFilter").addEventListener("change", (event) => {
+        state.category = event.target.value;
+        state.visible = 4;
+        renderProducts();
+      });
+      $("#sortFilter").addEventListener("change", (event) => {
+        state.sort = event.target.value;
+        renderProducts();
+      });
+      $("#showMore").addEventListener("click", () => {
+        state.visible += 4;
+        renderProducts();
+      });
+      $("#wishlistToggle").addEventListener("click", () => {
+        state.category = "All";
+        state.search = "";
+        $("#categoryFilter").value = "All";
+        $("#searchInput").value = "";
+        renderProducts();
+        toast(state.wishlist.length ? `${state.wishlist.length} item(s) in wishlist` : "Wishlist is empty");
+      });
+      $("#cartToggle").addEventListener("click", openCart);
+      $("#closeCart").addEventListener("click", closeCart);
+      $("#overlay").addEventListener("click", closeCart);
+      $("#checkoutBtn").addEventListener("click", () => {
+        if (!state.cart.length) return toast("Cart is empty");
+        state.cart = [];
+        renderCart();
+        closeCart();
+        toast("Order accepted. Thank you!");
+      });
+      $("#prevRoom").addEventListener("click", () => {
+        state.roomIndex = (state.roomIndex - 1 + rooms.length) % rooms.length;
+        renderRoom();
+      });
+      $("#nextRoom").addEventListener("click", () => {
+        state.roomIndex = (state.roomIndex + 1) % rooms.length;
+        renderRoom();
+      });
+      $("#exploreRooms").addEventListener("click", () => {
+        state.category = "Living";
+        $("#categoryFilter").value = "Living";
+        renderProducts();
+        document.querySelector("#shop").scrollIntoView();
+      });
+      $("#newsletterForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        event.target.reset();
+        toast("Subscribed successfully");
+      });
+      $("#qtyMinus").addEventListener("click", () => {
+        state.modalQty = Math.max(1, state.modalQty - 1);
+        $("#modalQty").textContent = state.modalQty;
+      });
+      $("#qtyPlus").addEventListener("click", () => {
+        state.modalQty += 1;
+        $("#modalQty").textContent = state.modalQty;
+      });
+      $("#modalAddCart").addEventListener("click", () => {
+        addToCart(state.modalProduct.id, state.modalQty);
+        closeModal();
+      });
+
+      renderProducts();
+      renderCart();
+      renderRoom();
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
